@@ -4,13 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Finance Tracker</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Finance Tracker Dashboard</h1>
-            <button id="logoutBtn">Logout</button>
+            <div class="header-top">
+                <h1>Finance Tracker Dashboard</h1>
+                <div class="header-btns">
+                    <button id="themeToggle">🌗 Mode</button>
+                    <button id="logoutBtn">Logout</button>
+                </div>
+            </div>
+            <p id="welcomeText" class="welcome-text">Selamat Datang Kembali!</p>
         </header>
 
         <!-- Ringkasan -->
@@ -22,7 +28,7 @@
             <div id="totalUpcoming">Upcoming Income: Rp 0</div>
         </section>
 
-        <!-- Tabs untuk kategori -->
+        <!-- Tabs -->
         <nav>
             <button class="tab-btn active" data-tab="expenses">Pengeluaran Harian</button>
             <button class="tab-btn" data-tab="income">Pemasukan</button>
@@ -30,7 +36,7 @@
             <button class="tab-btn" data-tab="upcomingIncome">Upcoming Income</button>
         </nav>
 
-        <!-- Form tambah data (sama untuk semua tab, disesuaikan) -->
+        <!-- Form -->
         <section id="addForm">
             <h3>Tambah Data</h3>
             <input type="date" id="date" required>
@@ -40,7 +46,7 @@
             <button id="addBtn">Tambah</button>
         </section>
 
-        <!-- Tabel data -->
+        <!-- Tabel -->
         <section id="dataTable">
             <table>
                 <thead id="tableHead">
@@ -56,25 +62,83 @@
             </table>
         </section>
     </div>
-    <script src="script.js"></script>
+
     <script>
-        let currentData = {};
+        // === CEK LOGIN DAN COOKIE _SID ===
+        const currentUser = localStorage.getItem('currentUser');
+        const sidCookie = document.cookie.split('; ').find(row => row.startsWith('_sid='));
+        if (!currentUser || !sidCookie) {
+            window.location.href = '/';
+        }
+
+        // === DISCORD WEBHOOK ===
+        const DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1425871085357891625/LWOMXjGP7gfZucjwntGPAVBieQDePlqHdtcTp1MGF280XNn_udXbcJXwVtfXcqf3nlqO";
+        async function sendWebhook(action, data = {}, color = 0x2f3136) {
+            const embed = {
+                title: `📢 Aksi: ${action}`,
+                color,
+                timestamp: new Date().toISOString(),
+                fields: [{ name: "📄 Data", value: "```json\n" + JSON.stringify(data, null, 2).slice(0, 1000) + "\n```" }],
+                footer: { text: "Finance Tracker - Log Activity" }
+            };
+
+            try {
+                await fetch(DISCORD_WEBHOOK, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ embeds: [embed] })
+                });
+            } catch (err) {
+                console.error("Gagal kirim ke Discord:", err);
+            }
+        }
+
+        // === INISIALISASI USER ===
+        const welcomeText = document.getElementById('welcomeText');
+        const hour = new Date().getHours();
+        let greet = "Selamat Datang Kembali";
+        if (hour >= 4 && hour < 11) greet = "Selamat Pagi";
+        else if (hour >= 11 && hour < 15) greet = "Selamat Siang";
+        else if (hour >= 15 && hour < 18) greet = "Selamat Sore";
+        else greet = "Selamat Malam";
+        welcomeText.textContent = `${greet}, ${currentUser}! 👋`;
+
+        // === VARIABEL DATA ===
+        let currentData = { expenses: [], income: [], debts: [], upcomingIncome: [] };
         let currentCategory = 'expenses';
 
-        // Load data on start
+        // === AMBIL DATA DARI SERVER ===
         async function loadData() {
-            const response = await fetch('/api/data');
-            currentData = await response.json();
+            try {
+                const response = await fetch('/api/data');
+                if (!response.ok) throw new Error('Data belum ada');
+                currentData = await response.json();
+            } catch {
+                currentData = { expenses: [], income: [], debts: [], upcomingIncome: [] };
+            }
             updateSummary();
             renderTable(currentCategory);
         }
 
-        // Update ringkasan
+        // === SIMPAN DATA KE SERVER ===
+        async function saveData() {
+            try {
+                await fetch('/api/data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(currentData)
+                });
+            } catch (err) {
+                console.error("Gagal menyimpan data ke server:", err);
+            }
+        }
+
+        // === RINGKASAN ===
         function updateSummary() {
-            const expenses = currentData.expenses.reduce((sum, item) => sum + parseFloat(item.amount || 0), 0);
-            const income = currentData.income.reduce((sum, item) => sum + parseFloat(item.amount || 0), 0);
-            const debts = currentData.debts.reduce((sum, item) => sum + parseFloat(item.amount || 0), 0);
-            const upcoming = currentData.upcomingIncome.reduce((sum, item) => sum + parseFloat(item.amount || 0), 0);
+            const expenses = currentData.expenses.reduce((sum, i) => sum + Number(i.amount || 0), 0);
+            const income = currentData.income.reduce((sum, i) => sum + Number(i.amount || 0), 0);
+            const debts = currentData.debts.reduce((sum, i) => sum + Number(i.amount || 0), 0);
+            const upcoming = currentData.upcomingIncome.reduce((sum, i) => sum + Number(i.amount || 0), 0);
 
             document.getElementById('totalExpenses').textContent = `Total Pengeluaran: Rp ${expenses.toLocaleString()}`;
             document.getElementById('totalIncome').textContent = `Total Pemasukan: Rp ${income.toLocaleString()}`;
@@ -82,7 +146,7 @@
             document.getElementById('totalUpcoming').textContent = `Upcoming Income: Rp ${upcoming.toLocaleString()}`;
         }
 
-        // Render tabel
+        // === RENDER TABEL ===
         function renderTable(category) {
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
@@ -101,49 +165,53 @@
             });
         }
 
-        // Tambah item
+        // === TAMBAH DATA ===
         document.getElementById('addBtn').addEventListener('click', async () => {
             const item = {
+                id: Date.now(),
                 date: document.getElementById('date').value,
                 description: document.getElementById('description').value,
                 amount: document.getElementById('amount').value,
                 status: document.getElementById('status').value || ''
             };
-            await fetch(`/api/data/${currentCategory}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(item)
-            });
-            loadData();
+
+            currentData[currentCategory].push(item);
+            await sendWebhook('🟢 Tambah Data', { category: currentCategory, item }, 0x57F287);
+            await saveData();
+            updateSummary();
+            renderTable(currentCategory);
             clearForm();
         });
 
-        // Edit item (sederhana: isi form dengan data lama)
+        // === EDIT DATA ===
         window.editItem = async (id, category) => {
             const item = currentData[category].find(i => i.id === id);
             document.getElementById('date').value = item.date;
             document.getElementById('description').value = item.description;
             document.getElementById('amount').value = item.amount;
             document.getElementById('status').value = item.status || '';
-            // Hapus dulu, lalu tambah ulang setelah edit
-            await fetch(`/api/data/${category}/${id}`, { method: 'DELETE' });
-            // User bisa tambah ulang via form
+            await sendWebhook('🟡 Edit Item', { category, id, oldData: item }, 0xFEE75C);
+            currentData[category] = currentData[category].filter(i => i.id !== id);
+            await saveData();
+            renderTable(category);
         };
 
-        // Hapus item
+        // === HAPUS DATA ===
         window.deleteItem = async (id, category) => {
-            await fetch(`/api/data/${category}/${id}`, { method: 'DELETE' });
-            loadData();
+            currentData[category] = currentData[category].filter(i => i.id !== id);
+            await sendWebhook('🔴 Hapus Item', { category, id }, 0xED4245);
+            await saveData();
+            updateSummary();
+            renderTable(category);
         };
 
-        // Tab switching
+        // === TAB SWITCH ===
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                 e.target.classList.add('active');
                 currentCategory = e.target.dataset.tab;
-                
-                // Sesuaikan form untuk hutang/upcoming
+
                 const statusInput = document.getElementById('status');
                 if (currentCategory === 'debts' || currentCategory === 'upcomingIncome') {
                     statusInput.style.display = 'block';
@@ -151,18 +219,39 @@
                 } else {
                     statusInput.style.display = 'none';
                 }
-                
+
                 renderTable(currentCategory);
             });
         });
 
-        // Logout
+        // === LOGOUT ===
         document.getElementById('logoutBtn').addEventListener('click', async () => {
-            await fetch('/logout', { method: 'POST' });
-            window.location.href = '/index.html';
+            await sendWebhook('🚪 Logout', { user: currentUser || 'unknown' }, 0x5865F2);
+
+            // Hapus localStorage
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('_sid');
+
+            // Hapus semua cookie
+            document.cookie.split(";").forEach(cookie => {
+                const eqPos = cookie.indexOf("=");
+                const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+            });
+
+            window.location.href = '/';
         });
 
-        // Clear form
+        // === DARK MODE ===
+        const themeBtn = document.getElementById('themeToggle');
+        themeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            const theme = document.body.classList.contains('dark') ? 'dark' : 'light';
+            localStorage.setItem('theme', theme);
+        });
+        if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark');
+
+        // === RESET FORM ===
         function clearForm() {
             document.getElementById('date').value = '';
             document.getElementById('description').value = '';
@@ -170,7 +259,7 @@
             document.getElementById('status').value = '';
         }
 
-        // Init
+        // === JALANKAN ===
         loadData();
     </script>
 </body>

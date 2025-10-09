@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Finance Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <button class="theme-toggle" id="themeToggle" aria-label="Ganti tema">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <div class="container">
+        <span class="logo">Finance Tracker</span>
+        <h1>Buat Akun Baru</h1>
+        <p class="subtitle">Daftarkan akun Anda untuk mulai mengelola keuangan dengan mudah.</p>
+
+        <form id="registerForm" novalidate>
+            <div class="form-group">
+                <label for="username">Username</label>
+                <i class="fas fa-user input-icon"></i>
+                <input type="text" id="username" placeholder="Masukkan username" required minlength="3" maxlength="50">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <i class="fas fa-lock input-icon"></i>
+                <input type="password" id="password" placeholder="Masukkan password" required minlength="6" maxlength="100">
+            </div>
+
+            <div class="form-group">
+                <label for="pin">PIN (4 digit)</label>
+                <i class="fas fa-key input-icon"></i>
+                <input type="text" id="pin" placeholder="Masukkan PIN" maxlength="4" pattern="[0-9]{4}" required>
+            </div>
+
+            <button type="submit">
+                <span class="loading" id="loadingSpinner" style="display: none;"></span>
+                Daftar Sekarang
+            </button>
+        </form>
+
+        <p id="registerMsg" role="alert" aria-live="polite"></p>
+
+        <div class="links">
+            <a href="/">Kembali ke Login</a>
+        </div>
+    </div>
+
+    <script>
+        // === Theme Toggle ===
+        const themeToggle = document.getElementById('themeToggle');
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        themeToggle.querySelector('i').className = currentTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+
+        themeToggle.addEventListener('click', () => {
+            const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            themeToggle.querySelector('i').className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        });
+
+        // === Handle Register ===
+        const form = document.getElementById('registerForm');
+        const msg = document.getElementById('registerMsg');
+        const spinner = document.getElementById('loadingSpinner');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const pin = document.getElementById('pin').value;
+
+            // Validasi sederhana
+            if (username.length < 3) return showMessage('Username minimal 3 karakter.', 'red');
+            if (password.length < 6) return showMessage('Password minimal 6 karakter.', 'red');
+            if (!/^[0-9]{4}$/.test(pin)) return showMessage('PIN harus 4 digit angka.', 'red');
+
+            spinner.style.display = 'inline-block';
+
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password, pin })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage(result.message || 'Registrasi berhasil! Mengarahkan...', 'green');
+                    setTimeout(() => { window.location.href = '/'; }, 2000);
+                } else {
+                    showMessage(result.message || 'Registrasi gagal. Coba lagi.', 'red');
+                }
+            } catch (error) {
+                showMessage('Terjadi kesalahan koneksi.', 'red');
+            } finally {
+                spinner.style.display = 'none';
+            }
+        });
+
+        function showMessage(text, color) {
+            msg.textContent = text;
+            msg.style.color = color;
+            msg.style.opacity = '1';
+            setTimeout(() => { msg.style.opacity = '0'; }, 4000);
+        }
+    </script>
+</body>
+</html>

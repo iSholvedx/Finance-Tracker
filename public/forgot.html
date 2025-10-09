@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lupa Password - Finance Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Tombol mode terang/gelap -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Ganti tema">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <div class="container">
+        <span class="logo">Finance Tracker</span>
+        <h1>Lupa Password</h1>
+        <p class="subtitle">Masukkan username dan PIN Anda untuk menemukan password akun Anda.</p>
+
+        <form id="forgotForm" novalidate>
+            <div class="form-group">
+                <label for="username">Username</label>
+                <i class="fas fa-user input-icon"></i>
+                <input type="text" id="username" placeholder="Masukkan username Anda" required minlength="3" maxlength="50">
+            </div>
+
+            <div class="form-group">
+                <label for="pin">PIN (4 digit)</label>
+                <i class="fas fa-key input-icon"></i>
+                <input type="text" id="pin" placeholder="Masukkan PIN Anda" maxlength="4" pattern="[0-9]{4}" required>
+            </div>
+
+            <button type="submit">
+                <span class="loading" id="loadingSpinner" style="display: none;"></span>
+                Cari Password
+            </button>
+        </form>
+
+        <p id="forgotMsg" role="alert" aria-live="polite"></p>
+        <div id="passwordDisplay" class="password-display" style="display: none;"></div>
+
+        <div class="links">
+            <a href="/">← Kembali ke Login</a>
+        </div>
+    </div>
+
+    <script>
+        // === Theme Toggle ===
+        const themeToggle = document.getElementById('themeToggle');
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        themeToggle.querySelector('i').className = currentTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+
+        themeToggle.addEventListener('click', () => {
+            const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            themeToggle.querySelector('i').className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        });
+
+        // === Forgot Password ===
+        const forgotForm = document.getElementById('forgotForm');
+        const msg = document.getElementById('forgotMsg');
+        const display = document.getElementById('passwordDisplay');
+        const spinner = document.getElementById('loadingSpinner');
+
+        forgotForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value.trim();
+            const pin = document.getElementById('pin').value.trim();
+
+            if (username.length < 3) return showMessage('Username minimal 3 karakter.', 'red');
+            if (!/^[0-9]{4}$/.test(pin)) return showMessage('PIN harus 4 digit angka.', 'red');
+
+            spinner.style.display = 'inline-block';
+
+            try {
+                const response = await fetch('/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, pin })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage(result.message || 'Password ditemukan!', 'green');
+                    display.textContent = `🔐 Password Anda: ${result.password}`;
+                    display.style.display = 'block';
+                    setTimeout(() => { window.location.href = '/index'; }, 3000);
+                } else {
+                    showMessage(result.message || 'Username atau PIN salah.', 'red');
+                    display.style.display = 'none';
+                }
+            } catch (error) {
+                showMessage('Terjadi kesalahan koneksi.', 'red');
+            } finally {
+                spinner.style.display = 'none';
+            }
+        });
+
+        function showMessage(text, color) {
+            msg.textContent = text;
+            msg.style.color = color;
+            msg.style.opacity = '1';
+            setTimeout(() => { msg.style.opacity = '0'; }, 4000);
+        }
+    </script>
+</body>
+</html>

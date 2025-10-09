@@ -1,0 +1,309 @@
+/* === Global Reset === */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    background-color: #f4f6f8;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 40px 0;
+}
+
+/* === Container === */
+.container {
+    width: 90%;
+    max-width: 1100px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    padding: 30px 40px;
+}
+
+/* === Header === */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+header h1 {
+    font-size: 1.8rem;
+    color: #2e5b9a;
+}
+
+#logoutBtn {
+    background-color: #e74c3c;
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+#logoutBtn:hover {
+    background-color: #c0392b;
+}
+
+/* === Summary Section === */
+#summary {
+    background-color: #eef3f8;
+    border-radius: 12px;
+    padding: 20px 25px;
+    margin-bottom: 25px;
+}
+
+#summary h2 {
+    color: #2e5b9a;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+#summary div {
+    padding: 6px 0;
+    font-weight: 500;
+}
+
+/* === Tabs === */
+nav {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 10px 0;
+    background: #e4ebf5;
+    border: none;
+    border-radius: 8px;
+    color: #2e5b9a;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+    background: #d6e2f3;
+}
+
+.tab-btn.active {
+    background: #2e5b9a;
+    color: #fff;
+    box-shadow: 0 3px 8px rgba(46, 91, 154, 0.3);
+}
+
+/* === Form Tambah Data === */
+#addForm {
+    background: #f8fafc;
+    border: 1px solid #e0e6ed;
+    border-radius: 12px;
+    padding: 20px 25px;
+    margin-bottom: 30px;
+}
+
+#addForm h3 {
+    color: #2e5b9a;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
+
+#addForm input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 12px;
+    border: 1px solid #cfd8e3;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease;
+}
+
+#addForm input:focus {
+    border-color: #2e5b9a;
+    outline: none;
+}
+
+#addBtn {
+    background: #2e5b9a;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+#addBtn:hover {
+    background: #1e4376;
+}
+
+/* === Table === */
+#dataTable {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+thead {
+    background-color: #2e5b9a;
+    color: white;
+}
+
+th, td {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 0.95rem;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f4f7fb;
+}
+
+tbody tr:hover {
+    background-color: #eaf1fb;
+}
+
+button {
+    border: none;
+    border-radius: 6px;
+    padding: 6px 10px;
+    margin: 2px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    opacity: 0.85;
+}
+
+td button:nth-child(1) {
+    background-color: #27ae60;
+    color: #fff;
+}
+
+td button:nth-child(2) {
+    background-color: #e74c3c;
+    color: #fff;
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+        padding: 20px;
+    }
+
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    nav {
+        flex-direction: column;
+    }
+
+    th, td {
+        font-size: 0.85rem;
+    }
+
+    #addForm input {
+        font-size: 0.85rem;
+    }
+}
+
+/* === DARK MODE === */
+body.dark {
+    background-color: #1e1e2f;
+    color: #f0f0f0;
+}
+
+body.dark .container {
+    background-color: #2b2b3d;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+body.dark header h1 {
+    color: #aad4ff;
+}
+
+body.dark #summary {
+    background-color: #32324a;
+    color: #f0f0f0;
+}
+
+body.dark nav .tab-btn {
+    background-color: #3b3b55;
+    color: #aad4ff;
+}
+
+body.dark nav .tab-btn.active {
+    background-color: #5b84d7;
+    color: #fff;
+    box-shadow: 0 3px 10px rgba(91, 132, 215, 0.4);
+}
+
+body.dark #addForm {
+    background-color: #2f2f45;
+    border-color: #4c4c68;
+}
+
+body.dark #addForm h3 {
+    color: #aad4ff;
+}
+
+body.dark #addForm input {
+    background-color: #3b3b55;
+    border-color: #5c5c7a;
+    color: #fff;
+}
+
+body.dark #dataTable table {
+    background-color: #2b2b3d;
+    color: #fff;
+}
+
+body.dark thead {
+    background-color: #445b93;
+}
+
+body.dark tbody tr:nth-child(even) {
+    background-color: #33334a;
+}
+
+body.dark tbody tr:hover {
+    background-color: #3f3f5a;
+}
+
+body.dark td button:nth-child(1) {
+    background-color: #27ae60;
+}
+
+body.dark td button:nth-child(2) {
+    background-color: #e74c3c;
+}
+
+body.dark #logoutBtn {
+    background-color: #c0392b;
+}
+
+body.dark #themeToggle {
+    background-color: #5b84d7;
+    color: #fff;
+}
+
