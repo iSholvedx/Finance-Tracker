@@ -1,6 +1,52 @@
 {
-  "expenses": [],
-  "income": [],
-  "debts": [],
-  "upcomingIncome": []
+  "expenses": [
+    {
+      "id": 1760021899508,
+      "date": "2025-10-09",
+      "description": "parkir",
+      "amount": "2000",
+      "status": ""
+    },
+    {
+      "id": 1760025191671,
+      "date": "2025-10-09",
+      "description": "beli nasi",
+      "amount": "19000",
+      "status": ""
+    },
+    {
+      "id": 1760027068431,
+      "date": "2025-10-09",
+      "description": "parkir",
+      "amount": "2000",
+      "status": ""
+    }
+  ],
+  "income": [
+    {
+      "id": 1760027078810,
+      "date": "",
+      "description": "gaji",
+      "amount": "1",
+      "status": ""
+    }
+  ],
+  "debts": [
+    {
+      "id": 1760027093646,
+      "date": "",
+      "description": "sopipay",
+      "amount": "200",
+      "status": "belum"
+    }
+  ],
+  "upcomingIncome": [
+    {
+      "id": 1760027105180,
+      "date": "",
+      "description": "gaji",
+      "amount": "1",
+      "status": "besok"
+    }
+  ]
 }
