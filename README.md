@@ -8,12 +8,12 @@ A modern, clean, and responsive personal finance tracker web app built with HTML
 
 Features:
 
-User Authentication: Login, logout, create account, and reset password with PIN verification, all managed via cookies for session persistence.
+- User Authentication: Login, logout, create account, and reset password with PIN verification, all managed via cookies for session persistence.
 
-Dashboard Overview: Summarizes total expenses, income, debts, and upcoming income with clear currency formatting.
+- Dashboard Overview: Summarizes total expenses, income, debts, and upcoming income with clear currency formatting.
 
-Tabbed Navigation: Easily switch between daily expenses, income, debts, and upcoming income sections.
+- Tabbed Navigation: Easily switch between daily expenses, income, debts, and upcoming income sections.
 
-Data Management: Add new financial records with date, description, and amount inputs, and view all entries in an organized table with status and action options.
+- Data Management: Add new financial records with date, description, and amount inputs, and view all entries in an organized table with status and action options.
 
-User-Friendly Interface: Clean design with intuitive input fields and responsive layout for seamless usage on all devices.
+- User-Friendly Interface: Clean design with intuitive input fields and responsive layout for seamless usage on all devices.
